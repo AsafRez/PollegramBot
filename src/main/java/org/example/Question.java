@@ -10,7 +10,11 @@ public class Question {
     private String question;
     private List<String> answers;
     public Question() {
-        this.answers = new ArrayList();
+        this.answers = new ArrayList<>();
+    }
+    public Question(String question, List<String> answers) {
+        this.question = question;
+        this.answers = answers;
     }
     public void addAnswer(String answer) {
         this.answers.add(answer);
@@ -32,5 +36,14 @@ public class Question {
         return answers;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (String answer : answers) {
+            sb.append("ת:"+answer).append("\n ");
+        }
+        return sb.toString();
+
+    }
 
 }
