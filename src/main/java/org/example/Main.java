@@ -3,6 +3,7 @@ package org.example;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class Main {
@@ -14,11 +15,11 @@ public class Main {
     public static final int RIGHT_COLUMN_WIDTH = SCREEN_WIDTH-150;
     private static ArrayList<Component> AI_component=null;
     private static ArrayList<Component> manual_component=null;
-    private static Survey manual_survey;
     private static int manual_survey_counter =0;
 
     public static void main(String[] args) {
-        manual_survey=new Survey();
+        Survey manual_survey=new Survey();
+        List<Survey>survey_list=new ArrayList<>();
         manual_component=new ArrayList<>();
         JFrame mainScreen = new JFrame();
         mainScreen.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
@@ -28,7 +29,7 @@ public class Main {
         mainScreen.setLayout(null);
         //JLabel
         JLabel surveySubjectLabel =createLabel("נושא הסקר",RIGHT_COLUMN_WIDTH,40,100);
-
+        HashMap<String,List<Survey>> entered_subjects=new HashMap<>();
         //JTexts
         JTextField surveySubject = createJTextField(40);
 
@@ -58,20 +59,14 @@ public class Main {
         JLabel AILabel = createLabel("תיאור מפורט של הסקר",RIGHT_COLUMN_WIDTH-25,120,150);
         JLabel AI_number_Answer = createLabel("מספר תשובות",RIGHT_COLUMN_WIDTH-25,160,150);
         JLabel AI_number_quest = createLabel("מספר שאלות",RIGHT_COLUMN_WIDTH-25,200,150);
-        mainScreen.add(AI_number_quest);
         AI_component.add(AI_number_quest);
-        mainScreen.add(AI_number_Answer);
         AI_component.add(AI_number_Answer);
-        mainScreen.add(AILabel);
         AI_component.add(AILabel);
         JTextField AI_Text = createJTextField(120);
         JTextField AI_number_answers = createJTextField(160);
         JTextField AI_number_question = createJTextField(200);
-        mainScreen.add(AI_Text);
         AI_component.add(AI_Text);
-        mainScreen.add(AI_number_answers);
         AI_component.add(AI_number_answers);
-        mainScreen.add(AI_number_question);
         AI_component.add(AI_number_question);
 
 
@@ -90,12 +85,15 @@ public class Main {
                         ChatQuery newchatqwe = new ChatQuery(AI_Text.getText(),AI_number_question.getText(), AI_number_answers.getText());
                     } else {
                         if (manual_survey_counter < 3) {
+                            manual_survey.setSubject(question_Text.getText());
                             manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text[0].getText(),question_answers_text[1].getText(),question_answers_text[2].getText(),question_answers_text[3].getText())));
-                                    manual_survey_counter++;}
+                                    manual_survey_counter++;
+                            survey_list.add(manual_survey);
+                            entered_subjects.put(manual_survey.getSubject(),survey_list);
+                        }
                     }
                 });
         mainScreen.add(submit);
-
         withAI.addActionListener(e-> {
               if (withAI.isSelected()) {
                   submit.setText("הפק סקר");
@@ -108,7 +106,6 @@ public class Main {
                   }
             }
               else if(AI_component!=null) {
-                  manual_survey=new Survey();
                   submit.setText("הוסף שאלה");
                   for (Component component : AI_component) {
                       mainScreen.remove(component);

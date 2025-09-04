@@ -7,6 +7,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Survey {
+    private int id;
     private List<Question> questions;
     public Survey() {
         questions = new ArrayList<Question>();
@@ -17,6 +18,15 @@ public class Survey {
     public void setQuestions(List<Question> questions) {
         this.questions = questions;
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
     public void addQuestion(Question question) {
         questions.add(question);
     }
