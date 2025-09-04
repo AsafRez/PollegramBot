@@ -16,10 +16,9 @@ public class Main {
     private static ArrayList<Component> AI_component=null;
     private static ArrayList<Component> manual_component=null;
     private static int manual_survey_counter =0;
+    private static Survey manual_survey=null;
 
     public static void main(String[] args) {
-        Survey manual_survey=new Survey();
-        List<Survey>survey_list=new ArrayList<>();
         manual_component=new ArrayList<>();
         JFrame mainScreen = new JFrame();
         mainScreen.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
@@ -82,11 +81,17 @@ public class Main {
             Submit.setFont(TEXT_FONT);
             Submit.setForeground(Color.BLACK);
             Submit.addActionListener(e -> {
+
                 if (withAI.isSelected()) {
-                    ChatQuery newChatQuery = new ChatQuery(AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
+
+                    FinalSurvey.survey=ChatQuery.generate_ChatPoll(surveySubject.getText(),AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
                 } else {
-                    //פה צריכה להיכנס פונקציה של הפקת סקר ידני
+                    manual_survey.setTitle(surveySubject.getText());
+                    FinalSurvey.survey=manual_survey;
                 }
+                FinalSurvey finalSurvey = new FinalSurvey();
+                finalSurvey.setVisible(true);
+                mainScreen.dispose();
             });
 
             JButton addQuestion = new JButton("הוסף שאלה");
@@ -94,20 +99,32 @@ public class Main {
             addQuestion.setFont(TEXT_FONT);
             addQuestion.setForeground(Color.BLACK);
             addQuestion.addActionListener(e -> {
+                if(manual_survey_counter==0){
+                    manual_survey=new Survey();
+                }
                 if (manual_survey_counter < 3) {
-//                    manual_survey.setSubject(question_Text.getText());
-//                    manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text[0].getText(), question_answers_text[1].getText(), question_answers_text[2].getText(), question_answers_text[3].getText())));
+                    manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text[0].getText(), question_answers_text[1].getText(), question_answers_text[2].getText(), question_answers_text[3].getText())));
                     manual_survey_counter++;
-//                    survey_list.add(manual_survey);
-//                    entered_subjects.put(manual_survey.getSubject(), survey_list);
+                    for (int i=0;i<4;i++) {
+                        question_answers_text[i].setText("");
+                    }
+                    question_Text.setText("");
+
+                }
+                if(manual_survey_counter!=0 && manual_survey_counter<3) {
+                    mainScreen.add(Submit);
+                    mainScreen.revalidate();
+                    mainScreen.repaint();
+                }else{
+                    mainScreen.remove(addQuestion);
+                    mainScreen.revalidate();
+                    mainScreen.repaint();
                 }
             });
-//            mainScreen.add(AiSubmit);
 
         mainScreen.add(addQuestion);
         withAI.addActionListener(e-> {
               if (withAI.isSelected()) {
-//                  addQuestion.setText("הפק סקר");
                   mainScreen.add(Submit);
                   for (Component component : AI_component) {
                       mainScreen.add(component);
@@ -118,7 +135,6 @@ public class Main {
                   }
             }
               else if(AI_component!=null) {
-//                  addQuestion.setText("הוסף שאלה");
                   if (manual_survey_counter <3) {
                       mainScreen.add(addQuestion);
                   }
