@@ -7,10 +7,14 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Survey {
+    private static int counterId;
     private int id;
     private List<Question> questions;
+
     public Survey() {
         questions = new ArrayList<Question>();
+        this.id = counterId;
+        counterId++;
     }
     public List<Question> getQuestions() {
         return questions;

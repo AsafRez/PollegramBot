@@ -76,27 +76,35 @@ public class Main {
         withAI.setForeground(Color.BLACK);
         withAI.setText("AI");
 
-        JButton submit = new JButton("החל");
-        submit.setBounds(SCREEN_WIDTH/4,2*SCREEN_HEIGHT/3,150,25);
-        submit.setFont(TEXT_FONT);
-        submit.setForeground(Color.BLACK);
-        submit.addActionListener(e -> {
-                    if (withAI.isSelected()) {
-                        ChatQuery newchatqwe = new ChatQuery(AI_Text.getText(),AI_number_question.getText(), AI_number_answers.getText());
-                    } else {
-                        if (manual_survey_counter < 3) {
-                            manual_survey.setSubject(question_Text.getText());
-                            manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text[0].getText(),question_answers_text[1].getText(),question_answers_text[2].getText(),question_answers_text[3].getText())));
-                                    manual_survey_counter++;
-                            survey_list.add(manual_survey);
-                            entered_subjects.put(manual_survey.getSubject(),survey_list);
-                        }
-                    }
-                });
-        mainScreen.add(submit);
+
+            JButton AiSubmit = new JButton("החל");
+            AiSubmit.setBounds(SCREEN_WIDTH / 4, 2 * SCREEN_HEIGHT / 3, 150, 25);
+            AiSubmit.setFont(TEXT_FONT);
+            AiSubmit.setForeground(Color.BLACK);
+            AiSubmit.addActionListener(e -> {
+                ChatQuery newChatQuery = new ChatQuery(AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
+            });
+            JButton addQuestion = new JButton("הוסף שאלה");
+            addQuestion.setBounds(SCREEN_WIDTH / 3, 2 * SCREEN_HEIGHT / 3, 150, 25);
+            addQuestion.setFont(TEXT_FONT);
+            addQuestion.setForeground(Color.BLACK);
+            addQuestion.addActionListener(e -> {
+                if (manual_survey_counter < 3) {
+                   // manual_survey.setSubject(question_Text.getText());
+                    manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text[0].getText(), question_answers_text[1].getText(), question_answers_text[2].getText(), question_answers_text[3].getText())));
+                    manual_survey_counter++;
+                    survey_list.add(manual_survey);
+//                    entered_subjects.put(manual_survey.getSubject(), survey_list);
+                }
+            });
+//        if (withAI.isSelected()) {
+//            mainScreen.add(AiSubmit);
+//        }else {mainScreen.add(addQuestion);}
+
+        mainScreen.add(addQuestion);
         withAI.addActionListener(e-> {
               if (withAI.isSelected()) {
-                  submit.setText("הפק סקר");
+                  addQuestion.setText("הפק סקר");
                   for (Component component : AI_component) {
                       mainScreen.add(component);
                   }
@@ -106,7 +114,7 @@ public class Main {
                   }
             }
               else if(AI_component!=null) {
-                  submit.setText("הוסף שאלה");
+                  addQuestion.setText("הוסף שאלה");
                   for (Component component : AI_component) {
                       mainScreen.remove(component);
                   }
@@ -123,8 +131,6 @@ public class Main {
         mainScreen.add(surveySubject);
         mainScreen.add(withAI);
         mainScreen.setVisible(true);
-
-
     }
     private static JTextField createJTextField(int y) {
         JTextField field = new JTextField();
@@ -141,4 +147,5 @@ public class Main {
         label.setHorizontalAlignment(SwingConstants.RIGHT);
         return label;
     }
+
 }
