@@ -77,44 +77,55 @@ public class Main {
         withAI.setText("AI");
 
 
-            JButton AiSubmit = new JButton("החל");
-            AiSubmit.setBounds(SCREEN_WIDTH / 4, 2 * SCREEN_HEIGHT / 3, 150, 25);
-            AiSubmit.setFont(TEXT_FONT);
-            AiSubmit.setForeground(Color.BLACK);
-            AiSubmit.addActionListener(e -> {
-                ChatQuery newChatQuery = new ChatQuery(AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
+            JButton Submit = new JButton("הפק סקר");
+            Submit.setBounds(SCREEN_WIDTH / 4, 2 * SCREEN_HEIGHT / 3, 150, 25);
+            Submit.setFont(TEXT_FONT);
+            Submit.setForeground(Color.BLACK);
+            Submit.addActionListener(e -> {
+                if (withAI.isSelected()) {
+                    ChatQuery newChatQuery = new ChatQuery(AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
+                } else {
+                    //פה צריכה להיכנס פונקציה של הפקת סקר ידני
+                }
             });
+
             JButton addQuestion = new JButton("הוסף שאלה");
-            addQuestion.setBounds(SCREEN_WIDTH / 3, 2 * SCREEN_HEIGHT / 3, 150, 25);
+            addQuestion.setBounds(SCREEN_WIDTH / 2, 2 * SCREEN_HEIGHT / 3, 150, 25);
             addQuestion.setFont(TEXT_FONT);
             addQuestion.setForeground(Color.BLACK);
             addQuestion.addActionListener(e -> {
                 if (manual_survey_counter < 3) {
-                   // manual_survey.setSubject(question_Text.getText());
-                    manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text[0].getText(), question_answers_text[1].getText(), question_answers_text[2].getText(), question_answers_text[3].getText())));
+//                    manual_survey.setSubject(question_Text.getText());
+//                    manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text[0].getText(), question_answers_text[1].getText(), question_answers_text[2].getText(), question_answers_text[3].getText())));
                     manual_survey_counter++;
-                    survey_list.add(manual_survey);
+//                    survey_list.add(manual_survey);
 //                    entered_subjects.put(manual_survey.getSubject(), survey_list);
                 }
             });
-//        if (withAI.isSelected()) {
 //            mainScreen.add(AiSubmit);
-//        }else {mainScreen.add(addQuestion);}
 
         mainScreen.add(addQuestion);
         withAI.addActionListener(e-> {
               if (withAI.isSelected()) {
-                  addQuestion.setText("הפק סקר");
+//                  addQuestion.setText("הפק סקר");
+                  mainScreen.add(Submit);
                   for (Component component : AI_component) {
                       mainScreen.add(component);
                   }
-
+                    mainScreen.remove(addQuestion);
                   for (Component component : manual_component) {
                       mainScreen.remove(component);
                   }
             }
               else if(AI_component!=null) {
-                  addQuestion.setText("הוסף שאלה");
+//                  addQuestion.setText("הוסף שאלה");
+                  if (manual_survey_counter <3) {
+                      mainScreen.add(addQuestion);
+                  }
+                  mainScreen.add(addQuestion);
+                  if (manual_survey_counter !=0) {
+                      mainScreen.add(Submit);
+                  }
                   for (Component component : AI_component) {
                       mainScreen.remove(component);
                   }
