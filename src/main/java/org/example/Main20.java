@@ -11,7 +11,7 @@ public class Main20 {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(new Bot());
-            FinalSurvey.telegramBotsApi = telegramBotsApi;
+            FinalSurveyOld.telegramBotsApi = telegramBotsApi;
         } catch (TelegramApiException s) {
             throw new RuntimeException(s);
         }
