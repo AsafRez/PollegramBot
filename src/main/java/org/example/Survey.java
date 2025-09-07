@@ -11,6 +11,15 @@ public class Survey {
     private int id;
     private List<Question> questions;
     private String title;
+    private String Telegramid;
+
+    public String getTelegramid() {
+        return Telegramid;
+    }
+
+    public void setTelegramid(String telegramid) {
+        Telegramid = telegramid;
+    }
 
     public Survey() {
         questions = new ArrayList<Question>();

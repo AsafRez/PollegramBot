@@ -2,20 +2,21 @@ package org.example;
 
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.polls.SendPoll;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 import org.example.MainScreen.*;
 
 public class Bot extends TelegramLongPollingBot {
     private Map<Long,String> users;
     private static Bot instance;
-    private Survey survey;
+    private Set<Survey> survey;
     public Bot() {
         users = new HashMap<>();
+        survey = new HashSet<>();
         if (instance == null) {
             instance = this;
         }
@@ -25,19 +26,33 @@ public class Bot extends TelegramLongPollingBot {
     }
     public void onUpdateReceived(Update update) {
         try {
-            if(!users.containsKey(update.getMessage().getChatId())) {
-                users.put(update.getMessage().getChatId(),update.getMessage().getFrom().getFirstName());
-                MainScreen.Users_from_Bot++;
-                System.out.println(users.size());
+            // --- בלוק 1: טיפול בתשובות סקר (PollAnswer)
+            if (update.hasPollAnswer()) {
+                org.telegram.telegrambots.meta.api.objects.polls.PollAnswer pollAnswer = update.getPollAnswer();
+
+                // הדפסת פרטי התשובה כדי לבצע דיבוג
+                System.out.println("Received a poll answer from user ID: " + pollAnswer.getUser().getId());
+                System.out.println("Poll ID: " + pollAnswer.getPollId());
+
+                // יציאה מהשיטה כדי למנוע את השגיאה הבאה
+                return;
             }
-        }
-        catch (Exception e) {
+
+            // --- בלוק 2: טיפול בהודעות טקסט רגילות (Message)
+            // הקוד מגיע לכאן רק אם העדכון אינו תשובת סקר
+            if (update.hasMessage() && update.getMessage().hasText()) {
+                long chatId = update.getMessage().getChatId();
+
+                if(!users.containsKey(chatId)) {
+                    users.put(chatId, update.getMessage().getFrom().getFirstName());
+                    MainScreen.Users_from_Bot++;
+                    System.out.println("New user added. Total users: " + users.size());
+                }
+            }
+        } catch (Exception e) {
             // הדפס את פרטי החריגה במידה וקרתה שגיאה
             e.printStackTrace();
         }
-    }
-    public void setSurvey(Survey survey) {
-        this.survey = survey;
     }
     @Override
     public void onUpdatesReceived(List<Update> updates) {
@@ -53,6 +68,7 @@ public class Bot extends TelegramLongPollingBot {
 
     public void send_Poll(Survey survey) {
         try{
+            this.survey.add(survey);
         for(Question q:survey.getQuestions()) {
             SendPoll poll = new SendPoll();
             poll=new SendPoll();
@@ -61,6 +77,7 @@ public class Bot extends TelegramLongPollingBot {
             for (Long id : users.keySet()) {
                 poll.setChatId(id);
                 execute(poll);
+//                Message poll =new
             }
         }
         }catch (Exception e) {
