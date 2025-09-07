@@ -10,11 +10,18 @@ public class Survey {
     private static int counterId;
     private int id;
     private List<Question> questions;
+    private String title;
 
     public Survey() {
         questions = new ArrayList<Question>();
         this.id = counterId;
         counterId++;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
     }
     public List<Question> getQuestions() {
         return questions;

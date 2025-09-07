@@ -7,11 +7,11 @@ import kong.unirest.Unirest;
 import kong.unirest.HttpResponse;
 
 
-public class ChatQuery {
-    private final String APIKEY="https://app.seker.live/fm1/send-message";
-    private final String ID="039575329";
+public abstract class  ChatQuery {
+    private static final String APIKEY="https://app.seker.live/fm1/send-message";
+    private static final String ID="039575329";
 
-    public ChatQuery(String subject,String quest,String answers) {
+    public static Survey generate_ChatPoll(String title,String subject,String quest,String answers) {
         try {
             HttpResponse<String> response= Unirest.get(APIKEY)
                     .queryString("id",ID)
@@ -36,10 +36,10 @@ public class ChatQuery {
 
 // ממפה ל-Survey
             Survey survey = mapper.treeToValue(surveyNode, Survey.class);
-
+            survey.setTitle(title);
+return survey;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
     }
 }
