@@ -4,6 +4,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.polls.SendPoll;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.polls.PollAnswer;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.*;
@@ -26,17 +27,14 @@ public class Bot extends TelegramLongPollingBot {
     }
     public void onUpdateReceived(Update update) {
         try {
-            // --- בלוק 1: טיפול בתשובות סקר (PollAnswer)
+            System.out.println(update.hasPollAnswer());
             if (update.hasPollAnswer()) {
-                org.telegram.telegrambots.meta.api.objects.polls.PollAnswer pollAnswer = update.getPollAnswer();
+                PollAnswer answer = update.getPollAnswer();
+                System.out.println("Poll ID: " + answer.getPollId());
+                System.out.println("User ID: " + answer.getUser().getId());
+                System.out.println("Option IDs: " + answer.getOptionIds());
 
-                // הדפסת פרטי התשובה כדי לבצע דיבוג
-                System.out.println("Received a poll answer from user ID: " + pollAnswer.getUser().getId());
-                System.out.println("Poll ID: " + pollAnswer.getPollId());
-
-                // יציאה מהשיטה כדי למנוע את השגיאה הבאה
-                return;
-            }
+                }
 
             // --- בלוק 2: טיפול בהודעות טקסט רגילות (Message)
             // הקוד מגיע לכאן רק אם העדכון אינו תשובת סקר
@@ -46,7 +44,6 @@ public class Bot extends TelegramLongPollingBot {
                 if(!users.containsKey(chatId)) {
                     users.put(chatId, update.getMessage().getFrom().getFirstName());
                     MainScreen.Users_from_Bot++;
-                    System.out.println("New user added. Total users: " + users.size());
                 }
             }
         } catch (Exception e) {
@@ -67,26 +64,22 @@ public class Bot extends TelegramLongPollingBot {
     }
 
     public void send_Poll(Survey survey) {
-        try{
+        try {
             this.survey.add(survey);
-        for(Question q:survey.getQuestions()) {
-            SendPoll poll = new SendPoll();
-            poll=new SendPoll();
-            poll.setQuestion(q.getQuestion());
-            poll.setOptions(q.getAnswers());
-            for (Long id : users.keySet()) {
-                poll.setChatId(id);
-                execute(poll);
-//                Message poll =new
+            for (Question q : survey.getQuestions()) {
+                SendPoll poll = new SendPoll();
+                poll.setQuestion(q.getQuestion());
+                poll.setOptions(q.getAnswers());
+                poll.setIsAnonymous(false); // חשוב לקבל PollAnswer עם user
+
+                for (Long chatId : users.keySet()) {
+                    poll.setChatId(chatId);
+                    execute(poll); // שולח סקר לצ'אט
+                }
             }
-        }
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    public Map<Long,String> getUsers() {
-        return users;
-    }
 
 }
-
