@@ -1,8 +1,13 @@
 package org.example;
 
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
+
 
 public class FinalSurvey extends JFrame {
     public static final int SCREEN_WIDTH = 600;
@@ -11,6 +16,7 @@ public class FinalSurvey extends JFrame {
     public static final Font TEXT_FONT = new Font ("Arial", Font.PLAIN, 18);
     private static int Rows_Counter=1;
     public static Survey survey;
+    public static TelegramBotsApi telegramBotsApi;
     public FinalSurvey() {
         this.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -40,6 +46,12 @@ public class FinalSurvey extends JFrame {
         to_publish.setFont(TEXT_FONT);
         to_publish.setHorizontalAlignment(SwingConstants.CENTER);
         to_publish.setBounds(SCREEN_WIDTH/2-75,Rows_Counter*30,150,50);
+        to_publish.addActionListener(e -> {
+            Bot.getInstance().send_Poll(survey);
+            Rows_Counter=1;
+            this.dispose();
+
+        });
         this.add(to_publish);
         this.setSize(SCREEN_WIDTH,Rows_Counter*30+125);
         }
@@ -51,4 +63,5 @@ public class FinalSurvey extends JFrame {
         label.setHorizontalAlignment(SwingConstants.RIGHT);
         return label;
     }
+
 }

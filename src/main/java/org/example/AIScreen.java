@@ -1,6 +1,7 @@
 package org.example;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class AIScreen extends Screen {
 
@@ -30,6 +31,26 @@ public class AIScreen extends Screen {
         this.add(AI_number_answers);
         this.add(AI_number_question);
 
+        JButton Submit = new JButton("הפק סקר");
+        Submit.setBounds(SCREEN_WIDTH / 4, 2 * SCREEN_HEIGHT / 3, 150, 25);
+        Submit.setFont(TEXT_FONT);
+        Submit.setForeground(Color.BLACK);
+        Submit.addActionListener(e -> {
+            if (!surveySubject.getText().isEmpty() && !AI_Text.getText().isEmpty()) {
+                    FinalSurvey.survey = (ChatQuery.generate_ChatPoll(surveySubject.getText(), AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText()));
+                FinalSurvey finalSurvey = new FinalSurvey();
+                finalSurvey.setVisible(true);
+                this.dispose(); // שימוש ב-this
+            } else {
+                JOptionPane.showMessageDialog(
+                        this, // שימוש ב-this
+                        "יש למלא את כל השדות", // הודעת השגיאה
+                        "שגיאת קלט", // כותרת החלון
+                        JOptionPane.ERROR_MESSAGE);
+            }
+
+        });
+        this.add(Submit);
         this.setVisible(true);
     }
 }
