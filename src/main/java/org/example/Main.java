@@ -1,5 +1,8 @@
 package org.example;
 
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -101,10 +104,11 @@ public class Main {
             Submit.setFont(TEXT_FONT);
             Submit.setForeground(Color.BLACK);
             Submit.addActionListener(e -> {
-                if (!surveySubject.getText().isEmpty() && !question_Text.getText().isEmpty()|| manual_survey_counter!=0) {
+                System.out.println(question_Text.getText());
+                if (!surveySubject.getText().isEmpty() && !AI_Text.getText().isEmpty()) {
                 if (withAI.isSelected()) {
                         FinalSurvey.survey = ChatQuery.generate_ChatPoll(surveySubject.getText(), AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
-                    } else {
+                    } else if(manual_survey_counter!=0||!question_Text.getText().isEmpty()) {
                         manual_survey.setTitle(surveySubject.getText());
                         FinalSurvey.survey = manual_survey;
                     }
