@@ -17,10 +17,13 @@ public class Main {
     private static ArrayList<Component> manual_component=null;
     private static int manual_survey_counter =0;
     private static Survey manual_survey=null;
+    private static JFrame mainScreen;
+    private static List<JTextField> question_answers_text;
+    private static JLabel[] question_answers;
 
     public static void main(String[] args) {
         manual_component=new ArrayList<>();
-        JFrame mainScreen = new JFrame();
+        mainScreen = new JFrame();
         mainScreen.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainScreen.setLocationRelativeTo(null);
@@ -37,22 +40,47 @@ public class Main {
         JLabel question_label = createLabel("השאלה לסקר",RIGHT_COLUMN_WIDTH-25,120,150);
         mainScreen.add(question_label);
         manual_component.add(question_label);
-        JLabel[] question_answers = new JLabel[4];
-        for(int i=0;i<4;i++) {
-            question_answers[i]=createLabel("תשובה "+(i+1), RIGHT_COLUMN_WIDTH - 25, 160+40*i, 150);
-            mainScreen.add(question_answers[i]);
-            manual_component.add(question_answers[i]);
-
-       }
+        question_answers = new JLabel[4];
         JTextField question_Text = createJTextField(120);
         manual_component.add(question_Text);
         mainScreen.add(question_Text);
-        JTextField []question_answers_text=new JTextField[4];
-        for(int i=0;i<4;i++) {
-            question_answers_text[i]=createJTextField(160+i*40);
-            mainScreen.add(question_answers_text[i]);
-            manual_component.add(question_answers_text[i]);
+        question_answers_text=new ArrayList<>();
+        question_answers_text.add(createJTextField(160));
+        for(int i=0;i<2;i++) {
+            question_answers[i]=createLabel("תשובה "+(i+1), RIGHT_COLUMN_WIDTH - 25, 160+40*i, 150);
+            mainScreen.add(question_answers[i]);
+            manual_component.add(question_answers[i]);
+            question_answers_text.add(createJTextField(160+(i+1)*40));
+            mainScreen.add(question_answers_text.get(i));
+            manual_component.add(question_answers_text.get(i));
         }
+        new Thread(()->{
+            while(true) {
+                try {
+                    // בדיקת התנאי מתבצעת מחוץ ל-EDT, וזה בסדר.
+                    if(!question_answers_text.getLast().getText().isEmpty()) {
+
+                        // כל הקוד שמשנה את ה-GUI חייב להיות בתוך invokeLater()
+                        SwingUtilities.invokeLater(() -> {
+                            // יצירת והוספת הרכיבים
+                            question_answers[question_answers_text.size()]=createLabel("תשובה "+(question_answers_text.size()), RIGHT_COLUMN_WIDTH - 25, 160+40*(question_answers_text.size()), 150);
+                            question_answers_text.add(createJTextField(160+(question_answers_text.size())*40));
+                            mainScreen.add(question_answers_text.getLast());
+                            manual_component.add(question_answers_text.getLast());
+                            mainScreen.add(question_answers[question_answers_text.size()-1]);
+                            manual_component.add(question_answers[question_answers_text.size()-1]);
+
+                            // עדכון התצוגה לאחר הוספת הרכיבים
+                            mainScreen.validate();
+                            mainScreen.repaint();
+                        });
+                    }
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }}).start();
+
         //Chat looks
         AI_component=new ArrayList<>();
         JLabel AILabel = createLabel("תיאור מפורט של הסקר",RIGHT_COLUMN_WIDTH-25,120,150);
@@ -81,17 +109,25 @@ public class Main {
             Submit.setFont(TEXT_FONT);
             Submit.setForeground(Color.BLACK);
             Submit.addActionListener(e -> {
-
+                if (!surveySubject.getText().isEmpty() && !question_Text.getText().isEmpty()) {
                 if (withAI.isSelected()) {
-
-                    FinalSurvey.survey=ChatQuery.generate_ChatPoll(surveySubject.getText(),AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
-                } else {
-                    manual_survey.setTitle(surveySubject.getText());
-                    FinalSurvey.survey=manual_survey;
+                        FinalSurvey.survey = ChatQuery.generate_ChatPoll(surveySubject.getText(), AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
+                    } else {
+                        manual_survey.setTitle(surveySubject.getText());
+                        FinalSurvey.survey = manual_survey;
+                    }
+                    FinalSurvey finalSurvey = new FinalSurvey();
+                    finalSurvey.setVisible(true);
+                    mainScreen.dispose();
                 }
-                FinalSurvey finalSurvey = new FinalSurvey();
-                finalSurvey.setVisible(true);
-                mainScreen.dispose();
+                else{
+                    JOptionPane.showMessageDialog(
+                            mainScreen, // ההורה של הדיאלוג (ה-JFrame במקרה זה)
+                            "יש למלא את כל השדות", // הודעת השגיאה
+                            "שגיאת קלט", // כותרת החלון
+                            JOptionPane.ERROR_MESSAGE);
+                }
+
             });
 
             JButton addQuestion = new JButton("הוסף שאלה");
@@ -99,28 +135,37 @@ public class Main {
             addQuestion.setFont(TEXT_FONT);
             addQuestion.setForeground(Color.BLACK);
             addQuestion.addActionListener(e -> {
-                if(manual_survey_counter==0){
-                    manual_survey=new Survey();
-                }
-                if (manual_survey_counter < 3) {
-                    manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text[0].getText(), question_answers_text[1].getText(), question_answers_text[2].getText(), question_answers_text[3].getText())));
-                    manual_survey_counter++;
-                    for (int i=0;i<4;i++) {
-                        question_answers_text[i].setText("");
+                if (!surveySubject.getText().isEmpty() && !question_Text.getText().isEmpty()) {
+                    if (manual_survey_counter == 0) {
+                        manual_survey = new Survey();
                     }
-                    question_Text.setText("");
+                    if (manual_survey_counter < 3) {
+                        manual_survey.addQuestion(new Question(question_Text.getText(), List.of(question_answers_text.getFirst().getText(), question_answers_text.get(1).getText(), question_answers_text.get(2).getText(), question_answers_text.get(3).getText())));
+                        manual_survey_counter++;
+                        for (int i = 0; i < 4; i++) {
+                            question_answers_text.get(i).setText("");
+                        }
+                        question_Text.setText("");
 
-                }
-                if(manual_survey_counter!=0 && manual_survey_counter<3) {
-                    mainScreen.add(Submit);
-                    mainScreen.revalidate();
-                    mainScreen.repaint();
-                }else{
-                    mainScreen.remove(addQuestion);
-                    mainScreen.revalidate();
-                    mainScreen.repaint();
+                    }
+                    if (manual_survey_counter != 0 && manual_survey_counter < 3) {
+                        mainScreen.add(Submit);
+                        mainScreen.revalidate();
+                        mainScreen.repaint();
+                    } else {
+                        mainScreen.remove(addQuestion);
+                        mainScreen.revalidate();
+                        mainScreen.repaint();
+                    }
+                } else{
+                    JOptionPane.showMessageDialog(
+                            mainScreen, // ההורה של הדיאלוג (ה-JFrame במקרה זה)
+                            "יש למלא את כל השדות (מינימום 2 תשובות)", // הודעת השגיאה
+                            "שגיאת קלט", // כותרת החלון
+                            JOptionPane.ERROR_MESSAGE);
                 }
             });
+
 
         mainScreen.add(addQuestion);
         withAI.addActionListener(e-> {

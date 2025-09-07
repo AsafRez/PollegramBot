@@ -2,6 +2,7 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 public class FinalSurvey extends JFrame {
     public static final int SCREEN_WIDTH = 600;
@@ -26,8 +27,10 @@ public class FinalSurvey extends JFrame {
             Rows_Counter++;
             for(int j=0;j<survey.getQuestions().get(i).getAnswers().size();j++) {
                 answers[j]= createLabel(survey.getQuestions().get(i).getAnswers().get(j), 10, Rows_Counter*30, SCREEN_WIDTH -100);
+                if(!answers[j].getText().isEmpty()) {
                 Rows_Counter++;
                 this.add(answers[j]);
+            }
             }
             Rows_Counter++;
 
