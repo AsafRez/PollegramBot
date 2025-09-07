@@ -19,67 +19,59 @@ public class Main {
     private static Survey manual_survey=null;
     private static JFrame mainScreen;
     private static List<JTextField> question_answers_text;
-    private static JLabel[] question_answers;
+    private static List<JLabel> question_answers;
 
     public static void main(String[] args) {
-        manual_component=new ArrayList<>();
+        manual_component = new ArrayList<>();
         mainScreen = new JFrame();
-        mainScreen.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
+        mainScreen.setSize(SCREEN_WIDTH, SCREEN_HEIGHT);
         mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         mainScreen.setLocationRelativeTo(null);
         mainScreen.setResizable(false);
         mainScreen.setLayout(null);
         //JLabel
-        JLabel surveySubjectLabel =createLabel("נושא הסקר",RIGHT_COLUMN_WIDTH,40,100);
-        HashMap<String,List<Survey>> entered_subjects=new HashMap<>();
+        JLabel surveySubjectLabel = createLabel("נושא הסקר", RIGHT_COLUMN_WIDTH, 40, 100);
+        HashMap<String, List<Survey>> entered_subjects = new HashMap<>();
         //JTexts
         JTextField surveySubject = createJTextField(40);
 
 
         //Manual looks
-        JLabel question_label = createLabel("השאלה לסקר",RIGHT_COLUMN_WIDTH-25,120,150);
+        JLabel question_label = createLabel("השאלה לסקר", RIGHT_COLUMN_WIDTH - 25, 120, 150);
         mainScreen.add(question_label);
         manual_component.add(question_label);
-        question_answers = new JLabel[4];
+        question_answers = new ArrayList<>();
         JTextField question_Text = createJTextField(120);
         manual_component.add(question_Text);
         mainScreen.add(question_Text);
-        question_answers_text=new ArrayList<>();
-        question_answers_text.add(createJTextField(160));
-        for(int i=0;i<2;i++) {
-            question_answers[i]=createLabel("תשובה "+(i+1), RIGHT_COLUMN_WIDTH - 25, 160+40*i, 150);
-            mainScreen.add(question_answers[i]);
-            manual_component.add(question_answers[i]);
-            question_answers_text.add(createJTextField(160+(i+1)*40));
-            mainScreen.add(question_answers_text.get(i));
-            manual_component.add(question_answers_text.get(i));
+        question_answers_text = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            question_answers.add(createLabel("תשובה " + (i + 1), RIGHT_COLUMN_WIDTH - 25, 160 + (40 * i), 150));
+            mainScreen.add(question_answers.getLast());
+            manual_component.add(question_answers.getLast());
+            question_answers_text.add(createJTextField(160 + (i* 40)));
+            mainScreen.add(question_answers_text.getLast());
+            manual_component.add(question_answers_text.getLast());
         }
-        new Thread(()->{
-            while(true) {
-                try {
-                    // בדיקת התנאי מתבצעת מחוץ ל-EDT, וזה בסדר.
-                    if(!question_answers_text.getLast().getText().isEmpty()) {
+        JButton add_answer = new JButton("הוסף תשובה");
+        add_answer.setBounds((SCREEN_WIDTH / 2) + 150, 2 * SCREEN_HEIGHT / 3, 150, 25);
+        add_answer.setFont(TEXT_FONT);
+        add_answer.setForeground(Color.BLACK);
+        mainScreen.add(add_answer);
+        manual_component.add(add_answer);
+        add_answer.addActionListener(e -> {
+            if(question_answers.size()<4 && !question_answers_text.getFirst().getText().isEmpty()&&!question_answers_text.get(1).getText().isEmpty()) {
+                question_answers.add(createLabel("תשובה "+(question_answers.size()+1), RIGHT_COLUMN_WIDTH - 25, 160 + 40 * (question_answers_text.size()), 150));
+                question_answers_text.add(createJTextField(160 + (question_answers_text.size()) * 40));
+                mainScreen.add(question_answers_text.getLast());
+                manual_component.add(question_answers_text.getLast());
+                mainScreen.add(question_answers.get(question_answers_text.size() - 1));
+                manual_component.add(question_answers.get(question_answers_text.size() - 1));
 
-                        // כל הקוד שמשנה את ה-GUI חייב להיות בתוך invokeLater()
-                        SwingUtilities.invokeLater(() -> {
-                            // יצירת והוספת הרכיבים
-                            question_answers[question_answers_text.size()]=createLabel("תשובה "+(question_answers_text.size()), RIGHT_COLUMN_WIDTH - 25, 160+40*(question_answers_text.size()), 150);
-                            question_answers_text.add(createJTextField(160+(question_answers_text.size())*40));
-                            mainScreen.add(question_answers_text.getLast());
-                            manual_component.add(question_answers_text.getLast());
-                            mainScreen.add(question_answers[question_answers_text.size()-1]);
-                            manual_component.add(question_answers[question_answers_text.size()-1]);
-
-                            // עדכון התצוגה לאחר הוספת הרכיבים
-                            mainScreen.validate();
-                            mainScreen.repaint();
-                        });
-                    }
-                Thread.sleep(1);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                mainScreen.validate();
+                mainScreen.repaint();
             }
-        }}).start();
+        });
 
         //Chat looks
         AI_component=new ArrayList<>();
@@ -109,7 +101,7 @@ public class Main {
             Submit.setFont(TEXT_FONT);
             Submit.setForeground(Color.BLACK);
             Submit.addActionListener(e -> {
-                if (!surveySubject.getText().isEmpty() && !question_Text.getText().isEmpty()) {
+                if (!surveySubject.getText().isEmpty() && !question_Text.getText().isEmpty()|| manual_survey_counter!=0) {
                 if (withAI.isSelected()) {
                         FinalSurvey.survey = ChatQuery.generate_ChatPoll(surveySubject.getText(), AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText());
                     } else {
