@@ -108,12 +108,12 @@ public class Main_IR extends JFrame { // ירושה מ-JFrame
         Submit.addActionListener(e -> {
             if (!surveySubject.getText().isEmpty() && !AI_Text.getText().isEmpty()) {
                 if (withAI.isSelected()) {
-                    FinalSurvey.survey = (ChatQuery.generate_ChatPoll(surveySubject.getText(), AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText()));
+                    FinalSurveyOld.survey = (ChatQuery.generate_ChatPoll(surveySubject.getText(), AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText()));
                 } else if (manual_survey_counter != 0 || !question_Text.getText().isEmpty()) {
                     manual_survey.setTitle(surveySubject.getText());
-                    FinalSurvey.survey = (manual_survey);
+                    FinalSurveyOld.survey = (manual_survey);
                 }
-                FinalSurvey finalSurvey = new FinalSurvey();
+                FinalSurveyOld finalSurvey = new FinalSurveyOld();
                 finalSurvey.setVisible(true);
                 this.dispose(); // שימוש ב-this
             } else {
@@ -227,7 +227,7 @@ public class Main_IR extends JFrame { // ירושה מ-JFrame
         try {
             telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(new Bot());
-            FinalSurvey.telegramBotsApi = telegramBotsApi;
+            FinalSurveyOld.telegramBotsApi = telegramBotsApi;
         } catch (TelegramApiException s) {
             throw new RuntimeException(s);
         }
