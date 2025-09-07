@@ -15,7 +15,7 @@ public class Bot extends TelegramLongPollingBot {
     private Map<Long,String> users;
     private static Bot instance;
     private Set<Survey> survey;
-    public Bot() {
+    public Bot()  {
         users = new HashMap<>();
         survey = new HashSet<>();
         if (instance == null) {
