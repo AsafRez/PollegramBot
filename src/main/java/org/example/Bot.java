@@ -7,24 +7,34 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.polls.PollAnswer;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.*;
+import java.time.LocalDate;
 import java.util.*;
 
 import org.example.MainScreen.*;
 
 public class Bot extends TelegramLongPollingBot {
-    private Map<Long,String> users;
+    private Map<Long, String> users;
     private static Bot instance;
     private Set<Survey> survey;
-    public Bot()  {
+
+    public Bot() {
         users = new HashMap<>();
         survey = new HashSet<>();
         if (instance == null) {
             instance = this;
         }
+        LoadFromTextFile();
     }
+
     public static Bot getInstance() {
         return instance;
     }
+
+    public Set<Survey> getSurveys() {
+        return survey;
+    }
+
     public void onUpdateReceived(Update update) {
         try {
             System.out.println(update.hasPollAnswer());
@@ -34,15 +44,16 @@ public class Bot extends TelegramLongPollingBot {
                 System.out.println("User ID: " + answer.getUser().getId());
                 System.out.println("Option IDs: " + answer.getOptionIds());
 
-                }
+            }
 
             // --- בלוק 2: טיפול בהודעות טקסט רגילות (Message)
             // הקוד מגיע לכאן רק אם העדכון אינו תשובת סקר
             if (update.hasMessage() && update.getMessage().hasText()) {
                 long chatId = update.getMessage().getChatId();
 
-                if(!users.containsKey(chatId)) {
+                if (!users.containsKey(chatId)) {
                     users.put(chatId, update.getMessage().getFrom().getFirstName());
+                    appendUserToFile(chatId, update.getMessage().getFrom().getFirstName());
                     MainScreen.Users_from_Bot++;
                 }
             }
@@ -51,14 +62,17 @@ public class Bot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
+
     @Override
     public void onUpdatesReceived(List<Update> updates) {
         super.onUpdatesReceived(updates);
     }
+
     @Override
     public String getBotUsername() {
         return "PollesGram_Bot";
     }
+
     public String getBotToken() {
         return "7607509792:AAFtAghav5RbhXQ5IcMp9qNoPiBvyK71Bh8";
     }
@@ -82,4 +96,25 @@ public class Bot extends TelegramLongPollingBot {
         }
     }
 
+    private static void appendUserToFile(Long key, String string) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/Users_file.txt", true))) { // append = true
+            writer.write(key + "|" + string);
+            System.out.println("User: " + string + "ID: " + key + " added to file");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void LoadFromTextFile() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/Users_file.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("\\|");
+                this.users.put(Long.valueOf(parts[0]), parts[1]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
 }
