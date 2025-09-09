@@ -48,6 +48,7 @@ public class MainScreen extends Screen {
                count_Users.setText(("מספר משתמשים: "+Users_from_Bot));
                this.revalidate();
                this.repaint();
+               Thread.sleep(1000);
            }
 
            }catch(InterruptedException e){
