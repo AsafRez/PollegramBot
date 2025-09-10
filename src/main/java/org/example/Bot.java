@@ -111,6 +111,7 @@ public class Bot extends TelegramLongPollingBot {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|");
                 this.users.put(Long.valueOf(parts[0]), parts[1]);
+                MainScreen.Users_from_Bot ++;
             }
         } catch (IOException e) {
             e.printStackTrace();

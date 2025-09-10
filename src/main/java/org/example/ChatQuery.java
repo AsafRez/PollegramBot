@@ -28,7 +28,6 @@ public abstract class  ChatQuery {
 
 // קורא את ה־JSON הראשי
             JsonNode root = mapper.readTree(response.getBody());
-
 // שולף את השדה extra שהוא String שמכיל JSON
             String extraJson = root.get("extra").asText().trim();
 

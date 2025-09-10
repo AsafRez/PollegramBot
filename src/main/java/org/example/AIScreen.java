@@ -37,7 +37,7 @@ public class AIScreen extends Screen {
         Submit.setForeground(Color.BLACK);
         Submit.addActionListener(e -> {
             if (!surveySubject.getText().isEmpty() && !AI_Text.getText().isEmpty()) {
-                    FinalSurvey.survey = (ChatQuery.generate_ChatPoll(surveySubject.getText(), AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText()));
+                FinalSurvey.survey = (ChatQuery.generate_ChatPoll(surveySubject.getText(), AI_Text.getText(), AI_number_question.getText(), AI_number_answers.getText()));
                 FinalSurvey finalSurvey = new FinalSurvey();
                 finalSurvey.setVisible(true);
                 this.dispose(); // שימוש ב-this
@@ -48,7 +48,6 @@ public class AIScreen extends Screen {
                         "שגיאת קלט", // כותרת החלון
                         JOptionPane.ERROR_MESSAGE);
             }
-
         });
         this.add(Submit);
         this.setVisible(true);
