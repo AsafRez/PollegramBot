@@ -15,7 +15,14 @@ public abstract class  ChatQuery {
         try {
             HttpResponse<String> response= Unirest.get(APIKEY)
                     .queryString("id",ID)
-                    .queryString("text","תתן לי רק סקר בנושא :"+subject+", מספר השאלות יהיה:"+quest+", ולכל שאלה מספר התשובות יהיו:"+answers+",תחזיר לי את זה בפורמט JSON ללא הערות וללא תוספות של מה אתה עושה והסברים.")
+                    .queryString("text",
+                            "החזר אך ורק JSON תקני, בשורה אחת, ללא ```json וללא טקסט נוסף. " +
+                                    "המבנה חייב להיות בדיוק כך: " +
+                                    "{\"survey\":{\"subject\":\"" + subject + "\",\"questions_count\":" + quest + ",\"answers_per_question\":" + answers + ",\"questions\":[{\"id\":1,\"question\":\"שאלה לדוגמה\",\"answers\":[\"תשובה 1\",\"תשובה 2\"]}]}} " +
+                                    "הוראות: 1. הכנס ל-\\\"subject\\\" את הנושא " + subject +
+                                    ". 2. צור בדיוק " + quest + " שאלות במערך \\\"questions\\\". " +
+                                    "3. לכל שאלה יהיו בדיוק " + answers + " תשובות במערך \\\"answers\\\". " +
+                                    "4. החזר רק JSON אחד, בלי שום טקסט אחר, בלי הערות.")
                             .asString();
             ObjectMapper mapper = new ObjectMapper();
 
