@@ -98,7 +98,7 @@ public class Bot extends TelegramLongPollingBot {
 
     private static void appendUserToFile(Long key, String string) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/Users_file.txt", true))) { // append = true
-            writer.write(key + "|" + string);
+            writer.write(key + "|" + string +"\n");
             System.out.println("User: " + string + "ID: " + key + " added to file");
         } catch (IOException e) {
             e.printStackTrace();
