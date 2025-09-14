@@ -12,6 +12,7 @@ public class Survey {
     private int id;
     private List<Question> questions;
     private String title;
+    private boolean isClosed = false;
     private String Telegramid;
 
     public String getTelegramid() {
@@ -33,6 +34,15 @@ public class Survey {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    public boolean isClosed() {
+        return isClosed;
+    }
+
+    public void setClosed(boolean closed) {
+        isClosed = closed;
+    }
+
     public List<Question> getQuestions() {
         return questions;
     }

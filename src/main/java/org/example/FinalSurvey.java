@@ -1,5 +1,6 @@
 package org.example;
 
+import com.sun.tools.javac.Main;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 
 import javax.swing.*;
@@ -9,7 +10,6 @@ public class FinalSurvey extends Screen{
     private static int Rows_Counter=1;
     public static Survey survey;
     public static TelegramBotsApi telegramBotsApi;
-
 
     public FinalSurvey(){
         super("Final Survey" );
@@ -39,9 +39,17 @@ public class FinalSurvey extends Screen{
         to_publish.setHorizontalAlignment(SwingConstants.CENTER);
         to_publish.setBounds(SCREEN_WIDTH/2-75,Rows_Counter*30,150,50);
         to_publish.addActionListener(e -> {
-            Bot.getInstance().send_Poll(survey);
-            Rows_Counter=1;
-            this.dispose();
+            if (Bot.getInstance().getActiveSurvey()==null ||  Bot.getInstance().getActiveSurvey().isClosed()) {
+                Bot.getInstance().send_Poll(survey);
+                Rows_Counter = 1;
+                this.dispose();
+            }else {
+                JOptionPane.showMessageDialog(
+                        this, // שימוש ב-this
+                        "כבר יש סקר פעיל, לא ניתן לפתוח סקרים במקביל", // הודעת השגיאה
+                        "שגיאה", // כותרת החלון
+                        JOptionPane.ERROR_MESSAGE);
+            }
 
         });
         this.add(to_publish);

@@ -11,6 +11,8 @@ public class MainScreen extends Screen {
     public static int Users_from_Bot = 0;
     private JTable surveyTable;
 
+
+
     public MainScreen() {
         super("Main_IR Screen");
         HashMap<String, List<Survey>> entered_subjects = new HashMap<>();
