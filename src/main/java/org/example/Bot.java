@@ -10,13 +10,11 @@ import org.telegram.telegrambots.meta.api.objects.polls.PollAnswer;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.example.MainScreen.*;
 
 public class Bot extends TelegramLongPollingBot {
     private Map<Long, String> users;
@@ -24,7 +22,7 @@ public class Bot extends TelegramLongPollingBot {
     private Set<Survey> survey;
     private Survey activeSurvey = null;
     private Integer activePollId = null;
-    private Set<Long> answeredUsers = new HashSet<>();
+    private Map<Long,Integer> answeredUsers = new HashMap<>();
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
 
@@ -52,26 +50,31 @@ public class Bot extends TelegramLongPollingBot {
         return instance;
     }
 
-    public Set<Survey> getSurveys() {
-        return survey;
-    }
-
     public Survey getActiveSurvey() {
         return activeSurvey;
     }
 
     public void onUpdateReceived(Update update) {
         try {
+
             // תשובה לסקר
             if (update.hasPollAnswer()) {
                 PollAnswer answer = update.getPollAnswer();
-                answeredUsers.add(answer.getUser().getId());
+                if(answeredUsers.containsKey(answer.getUser().getId())) {
+                    answeredUsers.replace(answer.getUser().getId(), answeredUsers.get(answer.getUser().getId()) + 1);
+                }else {
+                    answeredUsers.put(answer.getUser().getId(),1);
+                }
                 System.out.println("המשתמש: " + answer.getUser() + "ענה על הסקר");
                 System.out.println(answer.getOptionIds());
 
                 // אם כל המשתמשים ענו → סגירה מיידית
-                if (activeSurvey != null && !activeSurvey.isClosed() &&
-                        answeredUsers.size() == users.size()) {
+                if (activeSurvey != null && answeredUsers.size()== users.size()){
+                    for(int count : answeredUsers.values()) {
+                        if(count!=activeSurvey.getQuestions().size()) {
+                            return;
+                        }
+                    }
                     System.out.println("כל המשתמשים ענו הסקר, הסקר נסגר ✅ ");
                     closeActivePoll();
                 }
