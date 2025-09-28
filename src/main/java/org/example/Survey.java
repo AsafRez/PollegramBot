@@ -3,9 +3,8 @@ package org.example;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class Survey {
@@ -16,6 +15,8 @@ public class Survey {
     private boolean isClosed = false;
     private String Telegramid;
     private int[] statistics = new int[4];
+    private Map<String, Question> pollIdToQuestionMap = new HashMap<>();
+
 
     public String getTelegramid() {
         return Telegramid;
@@ -70,6 +71,10 @@ public class Survey {
 
     public void setStatistics(int input) {
         this.statistics [input] ++;
+    }
+
+    public Map<String, Question> getPollIdToQuestionMap() {
+        return pollIdToQuestionMap;
     }
 
     public String statisticToString() {

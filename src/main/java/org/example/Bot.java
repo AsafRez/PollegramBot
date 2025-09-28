@@ -26,6 +26,8 @@ public class Bot extends TelegramLongPollingBot {
     private Integer activePollId = null;
     private Set<Long> answeredUsers = new HashSet<>();
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+    private Map<Long, Integer> userProgress = new HashMap<>();
+
 
 
     public Bot() {
@@ -65,20 +67,20 @@ public class Bot extends TelegramLongPollingBot {
             // תשובה לסקר
             if (update.hasPollAnswer()) {
                 PollAnswer answer = update.getPollAnswer();
-                answeredUsers.add(answer.getUser().getId());
-                System.out.println("המשתמש: " + answer.getUser() + "ענה על הסקר");
-                System.out.println(answer.getOptionIds().get(0));
-                activeSurvey.setStatistics(answer.getOptionIds().get(0));
-                System.out.println(activeSurvey.statisticToString());
-
-                // אם כל המשתמשים ענו → סגירה מיידית
-                if (activeSurvey != null && !activeSurvey.isClosed() &&
-                        answeredUsers.size() == users.size()) {
-                    System.out.println("כל המשתמשים ענו הסקר, הסקר נסגר ✅ ");
-                    closeActivePoll();
+                long userId = answer.getUser().getId();
+                String pollId = answer.getPollId();
+                Question answeredQuestion = activeSurvey.getPollIdToQuestionMap().get(pollId);
+                if (answeredQuestion != null) {
+                    // עדכון התקדמות המשתמש
+                    userProgress.put(userId, userProgress.getOrDefault(userId, 0) + 1);
+                    // עדכון הסטטיסטיקה של השאלה הספציפית
+                    int answerIndex = answer.getOptionIds().get(0);
+                    answeredQuestion.incrementStatistic(answerIndex);
+                    System.out.println("המשתמש: " + answer.getUser().getFirstName() + " ענה על שאלה מספר " + userProgress.get(userId));
+                    //activeSurvey.setStatistics(answer.getOptionIds().get(0));
+                    checkAndCloseSurvey();
                 }
                 return;
-
             }
 
             // הודעת טקסט
@@ -109,6 +111,7 @@ public class Bot extends TelegramLongPollingBot {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -130,6 +133,10 @@ public class Bot extends TelegramLongPollingBot {
                 System.out.println("אין משתמשים לשליחת הסקר");
                 return;
             }
+            userProgress.clear();
+            for (Long chatId : users.keySet()) {
+                userProgress.put(chatId, 0);
+            }
 
             // שליחת הסקר לכל המשתמשים
             boolean isFirst = true;
@@ -142,6 +149,12 @@ public class Bot extends TelegramLongPollingBot {
                     poll.setChatId(chatId);
 
                     Message msg = execute(poll);
+
+                    if (msg.getPoll() != null && msg.getPoll().getId() != null) {
+                        q.setTelegramPollId(msg.getPoll().getId());
+                        survey.getPollIdToQuestionMap().put(msg.getPoll().getId(), q);
+                    }
+
 
                     // שמירה של מזהה הסקר והסקר הפעיל פעם אחת בלבד
                     if (isFirst) {
@@ -228,5 +241,19 @@ public class Bot extends TelegramLongPollingBot {
         System.out.println("✅ הסקר נסגר");
     }
 
+    private void checkAndCloseSurvey() {
+        if (activeSurvey == null || activeSurvey.isClosed()) {
+            return;
+        }
+        int totalQuestions = activeSurvey.getQuestions().size();
 
+        for (Long userId : userProgress.keySet()) {
+            if (userProgress.get(userId) < totalQuestions) {
+                return;
+
+            }
+        }
+        System.out.println("כל המשתמשים ענו על כל השאלות, הסקר נסגר ✅ ");
+        closeActivePoll();
+    }
 }
