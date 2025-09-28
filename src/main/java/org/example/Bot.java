@@ -28,8 +28,6 @@ public class Bot extends TelegramLongPollingBot {
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
 
-
-
     public Bot() {
         users = new HashMap<>();
         survey = new HashSet<>();
@@ -38,6 +36,8 @@ public class Bot extends TelegramLongPollingBot {
         }
         LoadFromTextFile();
     }
+
+
 
     @Override
     public String getBotUsername() {
@@ -67,7 +67,9 @@ public class Bot extends TelegramLongPollingBot {
                 PollAnswer answer = update.getPollAnswer();
                 answeredUsers.add(answer.getUser().getId());
                 System.out.println("המשתמש: " + answer.getUser() + "ענה על הסקר");
-                System.out.println(answer.getOptionIds());
+                System.out.println(answer.getOptionIds().get(0));
+                activeSurvey.setStatistics(answer.getOptionIds().get(0));
+                System.out.println(activeSurvey.statisticToString());
 
                 // אם כל המשתמשים ענו → סגירה מיידית
                 if (activeSurvey != null && !activeSurvey.isClosed() &&
@@ -154,9 +156,14 @@ public class Bot extends TelegramLongPollingBot {
                     }
                 }
             }
-
+            if (this.survey.isEmpty()){
+                MainScreen.surveyCombo.removeAllItems();
+                MainScreen.surveyCombo.addItem(activeSurvey.getTitle());
+            }else {
+            MainScreen.surveyCombo.addItem(activeSurvey.getTitle());
+            }
+            this.survey.add(activeSurvey);
             System.out.println("✅ הסקר '" + survey.getTitle() + "' נשלח לכל המשתמשים");
-
 
         } catch (Exception e) {
             e.printStackTrace();

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 
@@ -14,6 +15,7 @@ public class Survey {
     private String title;
     private boolean isClosed = false;
     private String Telegramid;
+    private int[] statistics = new int[4];
 
     public String getTelegramid() {
         return Telegramid;
@@ -61,15 +63,22 @@ public class Survey {
     public void addQuestion(Question question) {
         questions.add(question);
     }
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        for (Question question : questions) {
-            sb.append("ש:").append(question.getQuestion()).append("\n");
-            sb.append(question.toString()).append("\n");
-        }
-        return sb.toString();
+
+    public int[] getStatistics() {
+        return statistics;
     }
 
+    public void setStatistics(int input) {
+        this.statistics [input] ++;
+    }
 
+    public String statisticToString() {
+        return "Survey{" +
+                "statistics=" + Arrays.toString(statistics) +
+                '}';
+    }
+
+    public String toString() {
+        return title != null ? title : "סקר ללא שם";
+    }
 }

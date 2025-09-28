@@ -14,7 +14,6 @@ public class Screen extends JFrame{
 
 
     public Screen(String name) {
-    JFrame screen = new JFrame();
         this.setSize(SCREEN_WIDTH,SCREEN_HEIGHT);
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         this.setLocationRelativeTo(null);

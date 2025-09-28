@@ -11,22 +11,22 @@ public class MainScreen extends Screen {
     public static int Users_from_Bot = 0;
     private JTable surveyTable;
 
-
+    public static JComboBox<String> surveyCombo = new JComboBox<>();
 
     public MainScreen() {
-        super("Main_IR Screen");
+        super("Main_Screen");
         HashMap<String, List<Survey>> entered_subjects = new HashMap<>();
 
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
-        this.setVisible(true);
         JButton manualButton = new JButton();
         manualButton.setForeground(Color.black);
         manualButton.setFont(TITLE_FONT);
         manualButton.setBounds(SCREEN_WIDTH - 350, 50, 150, 40);
         manualButton.setText("סקר ידני");
         this.add(manualButton);
-        manualButton.addActionListener(e -> { new ManulScreen();
+        manualButton.addActionListener(e -> {
+            new ManulScreen();
         });
 
 
@@ -36,39 +36,53 @@ public class MainScreen extends Screen {
         AiButton.setBounds(200, manualButton.getY(), 150, 40);
         AiButton.setText("סקר באמצעות AI");
         this.add(AiButton);
-        AiButton.addActionListener(e -> { new AIScreen();
+        AiButton.addActionListener(e -> {
+            new AIScreen();
         });
 
 
-        JLabel count_Users =Screen.createLabel("מספר משתמשים: "+Users_from_Bot,200,SCREEN_HEIGHT-100,150);
-        count_Users.setAlignmentX(Component.LEFT_ALIGNMENT);
-        this.add(count_Users);
-       new Thread(() -> {
-           try {
-               Thread.sleep(1000);
-           while (true) {
-               count_Users.setText(("מספר משתמשים: "+Users_from_Bot));
-               this.revalidate();
-               this.repaint();
-               Thread.sleep(1000);
-           }
+        JLabel comboLabel = new JLabel();
+        comboLabel.setText("סטטיסטיקת סקרים:");
+        comboLabel.setForeground(Color.black);
+        comboLabel.setFont(TITLE_FONT);
+        comboLabel.setBounds(SCREEN_WIDTH - 200, 125, 150, 30);
+        this.add(comboLabel);
 
-           }catch(InterruptedException e){
-               e.printStackTrace();
-           }
+//        JComboBox<String> surveyCombo = new JComboBox<>();
+        surveyCombo.setFont(TEXT_FONT);
+        surveyCombo.setBounds(50, 125, 500, 30);
+        if (Bot.getInstance().getSurveys().isEmpty()) {
+            surveyCombo.addItem("אין סקרים פעילים");
+        } else {
+            for (Survey s : Bot.getInstance().getSurveys()) {
+                surveyCombo.addItem(s.getTitle());
+            }
+            System.out.println(surveyCombo);
+        }
+            this.add(surveyCombo);
 
-       }).start();
+            JLabel count_Users = Screen.createLabel("מספר משתמשים: " + Users_from_Bot, 200, SCREEN_HEIGHT - 100, 150);
+            count_Users.setAlignmentX(Component.LEFT_ALIGNMENT);
+            this.add(count_Users);
 
-//        JTable polls = new JTable();
-//        polls.addRowSelectionInterval(100,500);
-//        polls.setBounds(100,100,500,500);
-//        polls.setGridColor(Color.black);
-//        List<Survey> surveyList = new ArrayList<>(Bot.getInstance().getSurveys());
-//
-//        SurveyTableModel model = new SurveyTableModel(surveyList);
-//        surveyTable = new JTable(model);
-//
-//        add(new JScrollPane(surveyTable), BorderLayout.CENTER);
-//        this.add(polls);
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        SwingUtilities.invokeLater(() -> {
+                            // עדכון התווית של המשתמשים
+                            count_Users.setText(("מספר משתמשים: " + Users_from_Bot));
+                        });
+
+                        Thread.sleep(1000);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+
+            this.setVisible(true);
+            this.revalidate();
+            this.repaint();
     }
 }
+

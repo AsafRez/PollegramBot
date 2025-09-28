@@ -8,12 +8,16 @@ import javax.swing.*;
 
 public class Main20 {
     public static void main(String[] args) {
-        MainScreen mainScreen = new MainScreen();
-        mainScreen.setVisible(true);
+
+
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(new Bot());
             FinalSurveyOld.telegramBotsApi = telegramBotsApi;
+
+        SwingUtilities.invokeLater(() -> {
+            MainScreen mainScreen = new MainScreen();
+        });
         } catch (TelegramApiException s) {
             throw new RuntimeException(s);
         }
