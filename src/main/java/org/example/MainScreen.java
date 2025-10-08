@@ -2,9 +2,6 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class MainScreen extends Screen {
 
@@ -78,6 +75,11 @@ public class MainScreen extends Screen {
             displayQuestionStats();
         });
 
+
+        DefaultListCellRenderer renderer = new DefaultListCellRenderer();
+        renderer.setHorizontalAlignment(DefaultListCellRenderer.RIGHT);
+        surveyCombo.setRenderer(renderer);
+        questionCombo.setRenderer(renderer);
         // --- עדכון ראשוני של נתוני הסקרים והשאלות ---
         if (Bot.getInstance().getSurveys().isEmpty()) {
             surveyCombo.addItem("אין סקרים פעילים");
@@ -130,20 +132,6 @@ public class MainScreen extends Screen {
                 e.printStackTrace();
             }
         }).start();
-
-//        new Thread(() -> {
-//            try {
-//                while (true) {
-//                    SwingUtilities.invokeLater(() -> {
-//                        count_Users.setText(("מספר משתמשים: " + Users_from_Bot));
-//                    });
-//                    Thread.sleep(1000);
-//                }
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//        }).start();
-
         this.setVisible(true);
         this.revalidate();
         this.repaint();

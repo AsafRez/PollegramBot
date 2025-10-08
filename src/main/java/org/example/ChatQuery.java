@@ -7,6 +7,7 @@ import kong.unirest.Unirest;
 import kong.unirest.HttpResponse;
 
 
+
 public abstract class  ChatQuery {
     private static final String APIKEY="https://app.seker.live/fm1/send-message";
     private static final String ID="039575329";
@@ -41,9 +42,20 @@ public abstract class  ChatQuery {
             JsonNode surveyNode = extraNode.get("survey");
 
 // ממפה ל-Survey
-            Survey survey = mapper.treeToValue(surveyNode, Survey.class);
+            Survey survey =new Survey();
             survey.setTitle(title);
-return survey;
+            //מעבר פר שאלה
+            for (int i=0;i<surveyNode.get("questions_count").asInt();i++) {
+               Question temp_question=new Question(title,surveyNode.get("questions").get(i).get("answers").size());
+                temp_question.setQuestion(surveyNode.get("questions").get(i).get("question").asText());
+                //מעבר פר תשובה
+                for (int j=0;j<surveyNode.get("questions").get(i).get("answers").size();j++) {
+                    temp_question.addAnswer(surveyNode.get("questions").get(i).get("answers").get(j).asText());
+                }
+
+                survey.addQuestion(temp_question);
+            }
+            return survey;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

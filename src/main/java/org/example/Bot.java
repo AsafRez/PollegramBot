@@ -9,8 +9,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.polls.PollAnswer;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.File;
 import java.io.*;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,7 +36,16 @@ public class Bot extends TelegramLongPollingBot {
         if (instance == null) {
             instance = this;
         }
-        LoadFromTextFile();
+        if (new File("src/Users_file.txt").exists()){
+            LoadFromTextFile();
+        }else{
+            try {
+                new FileWriter("src/Users_file.txt", true);
+            }
+            catch (Exception e){
+
+            }
+        }
     }
 
 
@@ -77,7 +86,7 @@ public class Bot extends TelegramLongPollingBot {
                     int answerIndex = answer.getOptionIds().get(0);
                     answeredQuestion.incrementStatistic(answerIndex);
                     System.out.println("המשתמש: " + answer.getUser().getFirstName() + " ענה על שאלה מספר " + userProgress.get(userId));
-                    //activeSurvey.setStatistics(answer.getOptionIds().get(0));
+                    activeSurvey.setStatistics(answer.getOptionIds().get(0));
                     checkAndCloseSurvey();
                 }
                 return;
@@ -125,8 +134,9 @@ public class Bot extends TelegramLongPollingBot {
         try {
             // בדיקה אם כבר קיים סקר פעיל
             if (activeSurvey != null && !activeSurvey.isClosed()) {
-                System.out.println("כבר יש סקר פעיל, אי אפשר לפתוח חדש");
+                System.out.println("כבר יש סקר פעיל, אי אפשר לפתוח חדש :(");
                 return;
+
             }
 
             if (users.isEmpty()) {
@@ -167,7 +177,6 @@ public class Bot extends TelegramLongPollingBot {
 
                         // סגירה אוטומטית אחרי 5 דקות
                         scheduler.schedule(this::closeActivePoll, 5, TimeUnit.MINUTES);
-                        System.out.println(scheduler.toString());
                         isFirst = false;
                     }
                 }
@@ -193,7 +202,7 @@ public class Bot extends TelegramLongPollingBot {
     private static void appendUserToFile(Long key, String string) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter("src/Users_file.txt", true))) { // append = true
             writer.write(key + "|" + string +"\n");
-            System.out.println("User: " + string + "ID: " + key + " added to file");
+            System.out.println("User: " + string + " ID: " + key + " added to file");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -208,7 +217,7 @@ public class Bot extends TelegramLongPollingBot {
                 MainScreen.Users_from_Bot ++;
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("error reading users file");
         }
 
     }

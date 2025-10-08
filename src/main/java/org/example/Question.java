@@ -1,7 +1,6 @@
 package org.example;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +9,10 @@ import java.util.List;
 public class Question {
     private String question;
     private List<String> answers;
+    public Question(String question,int numberOfAnswers) {
+        this.answers = new ArrayList<>();
+        this.statistics = new int[numberOfAnswers];
+    }
     public Question() {
         this.answers = new ArrayList<>();
     }
@@ -23,6 +26,8 @@ public class Question {
     }
     public void addAnswer(String answer) {
         this.answers.add(answer);
+
+
     }
 
     public String getQuestion() {

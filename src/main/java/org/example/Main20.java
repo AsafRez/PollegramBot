@@ -13,10 +13,8 @@ public class Main20 {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(new Bot());
-            FinalSurveyOld.telegramBotsApi = telegramBotsApi;
 
         SwingUtilities.invokeLater(() -> {
-            MainScreen mainScreen = new MainScreen();
         });
         } catch (TelegramApiException s) {
             throw new RuntimeException(s);
