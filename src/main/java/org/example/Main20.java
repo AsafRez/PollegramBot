@@ -13,6 +13,7 @@ public class Main20 {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
             telegramBotsApi.registerBot(new Bot());
+            MainScreen mainScreen = new MainScreen();
 
         SwingUtilities.invokeLater(() -> {
         });
