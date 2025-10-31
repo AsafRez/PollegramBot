@@ -50,52 +50,76 @@ public class FinalSurvey extends Screen{
         to_publish.setHorizontalAlignment(SwingConstants.CENTER);
         to_publish.setBounds(SCREEN_WIDTH/2-75,delay.getY()+30,150,50);
         to_publish.addActionListener(e -> {
-                delay_timer.schedule(this::send_toBot, Integer.parseInt(delay.getText()), TimeUnit.MINUTES);
-
-            if (!Objects.equals(delay.getText(), "0")&&delay.getText().matches("^\\d{1,2}$")) {
-                Rows_Counter = 1;
-                this.dispose();
-                JOptionPane.showMessageDialog(
-                            this, // שימוש ב-this
-                            "הסקר יפורסם בעוד " + delay.getText() + " דקות.", // הודעת השגיאה
-                            "שליחה בהשהייה", // כותרת החלון
-                            JOptionPane.ERROR_MESSAGE);
-
-            }else {
+            if (Objects.equals(delay.getText(), "0")){
+                if(send_toBot()) {
+                    Rows_Counter = 1;
+                    this.dispose();
                     JOptionPane.showMessageDialog(
                             this, // שימוש ב-this
-                            "הכנס רק מספרים שלמים עד 99 דקות", // הודעת השגיאה
-                            "תקלה :(", // כותרת החלון
+                            "הסקר יפורסם עכשיו " + delay.getText() + " .", // הודעת השגיאה
+                            "שליחה", // כותרת החלון
                             JOptionPane.ERROR_MESSAGE);
-
-
                 }
+            }else {
+                try {
+                    // 1. נסה להמיר את הטקסט למספר שלם
+                    int delayValue = Integer.parseInt(delay.getText());
 
+                    // 2. בדוק אם המספר בטווח הרצוי (1-99)
+                    if (delayValue > 0 && delayValue <= 99) {
+                        delay_timer.schedule(this::send_toBot, Integer.parseInt(delay.getText()), TimeUnit.MINUTES);
+
+                        // מקרה הצלחה
+                        Rows_Counter = 1;
+                        this.dispose();
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "הסקר יפורסם בעוד " + delayValue + " דקות.",
+                                "שליחה בהשהייה",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        // המספר הוא 0, שלילי, או מעל 99
+                        JOptionPane.showMessageDialog(
+                                this,
+                                "יש להכניס ערך מספרי בין 1 ל-99.",
+                                "ערך מחוץ לטווח",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+
+                } catch (NumberFormatException s) {
+                    // 3. אם ההמרה נכשלה (הטקסט לא היה מספר)
+                    JOptionPane.showMessageDialog(
+                            this,
+                            "הכנס רק מספרים שלמים (לדוגמה: 5, 30).",
+                            "קלט לא חוקי",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
         });
 
 
         this.add(to_publish);
         this.setSize(SCREEN_WIDTH,Rows_Counter*30+125);
     }
-    private void send_toBot(){
-        if (Bot.getInstance().getActiveSurvey() == null || Bot.getInstance().getActiveSurvey().isClosed() || MainScreen.Users_from_Bot < 3) {
-            if (MainScreen.Users_from_Bot < 3) {
-                JOptionPane.showMessageDialog(
-                        this, // שימוש ב-this
-                        "קהילה קטנה מידי :(", // הודעת השגיאה
-                        "שגיאה", // כותרת החלון
-                        JOptionPane.ERROR_MESSAGE);
-
-            } else {
-                Bot.getInstance().send_Poll(survey);
-
-            }
+    private boolean send_toBot(){
+        if (MainScreen.Users_from_Bot < 3) {
+            JOptionPane.showMessageDialog(
+                    this, // שימוש ב-this
+                    "קהילה קטנה מידי :(", // הודעת השגיאה
+                    "שגיאה", // כותרת החלון
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+        else if (Bot.getInstance().getActiveSurvey() == null || Bot.getInstance().getActiveSurvey().isClosed()) {
+            Bot.getInstance().send_Poll(survey);
+            return true;
         } else {
             JOptionPane.showMessageDialog(
                     this, // שימוש ב-this
                     "כבר יש סקר פעיל, לא ניתן לפתוח סקרים במקביל", // הודעת השגיאה
                     "שגיאה", // כותרת החלון
                     JOptionPane.ERROR_MESSAGE);
+            return false;
         }
 
     }
