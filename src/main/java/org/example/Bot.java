@@ -183,9 +183,9 @@ public class Bot extends TelegramLongPollingBot {
             }
             if (this.survey.isEmpty()){
                 MainScreen.surveyCombo.removeAllItems();
-                MainScreen.surveyCombo.addItem(activeSurvey.getTitle());
+                MainScreen.surveyCombo.addItem(activeSurvey);
             }else {
-            MainScreen.surveyCombo.addItem(activeSurvey.getTitle());
+            MainScreen.surveyCombo.addItem(activeSurvey);
             }
             this.survey.add(activeSurvey);
             System.out.println("✅ הסקר '" + survey.getTitle() + "' נשלח לכל המשתמשים");

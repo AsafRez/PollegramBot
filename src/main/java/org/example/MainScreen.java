@@ -6,7 +6,7 @@ import java.awt.*;
 public class MainScreen extends Screen {
 
     public static int Users_from_Bot = 0;
-    public static JComboBox<String> surveyCombo = new JComboBox<>();
+    public static JComboBox<Survey> surveyCombo = new JComboBox<>();
     private JComboBox<String> questionCombo = new JComboBox<>();
     private JPanel graphContainer;
     private GraphPanel graphPanel;
@@ -82,16 +82,16 @@ public class MainScreen extends Screen {
         questionCombo.setRenderer(renderer);
         // --- עדכון ראשוני של נתוני הסקרים והשאלות ---
         if (Bot.getInstance().getSurveys().isEmpty()) {
-            surveyCombo.addItem("אין סקרים פעילים");
+            surveyCombo.setEnabled(false);
+            surveyCombo.setToolTipText("אין סקרים זמינים כרגע");
         } else {
             for (Survey s : Bot.getInstance().getSurveys()) {
-                surveyCombo.addItem(s.getTitle());
+                surveyCombo.addItem(s);
             }
         }
 
         updateQuestionCombo(); // קריאה ראשונית לאחר שכל הרכיבים קיימים
 
-        // --- קוד קיים עבור מונה משתמשים וכו' ---
         JLabel count_Users = Screen.createLabel("מספר משתמשים: " + Users_from_Bot, 200, SCREEN_HEIGHT - 100, 150);
         count_Users.setAlignmentX(Component.LEFT_ALIGNMENT);
         this.add(count_Users);
@@ -101,26 +101,27 @@ public class MainScreen extends Screen {
                 while (true) {
                     // השתמש ב-SwingUtilities.invokeLater() כדי לעדכן את ה-GUI באופן בטוח
                     SwingUtilities.invokeLater(() -> {
-                        // עדכון התווית של המשתמשים
                         count_Users.setText(("מספר משתמשים: " + Users_from_Bot));
 
-                        // קבל את הסקר והשאלה הנבחרים כרגע
-                        String selectedSurveyTitle = (String) surveyCombo.getSelectedItem();
+                        Survey selectedSurvey = (Survey) surveyCombo.getSelectedItem();
                         String selectedQuestionText = (String) questionCombo.getSelectedItem();
 
-                        // בצע עדכון רק אם יש סקר ושאלות נבחרים
-                        if (selectedSurveyTitle != null && selectedQuestionText != null &&
-                                !selectedSurveyTitle.equals("אין סקרים פעילים") &&
-                                !selectedQuestionText.equals("אין שאלות זמינות")) {
+                        //    (בודקים ש-selectedSurvey לא null ושלא נבחר טקסט ברירת מחדל)
+                        if (selectedSurvey == null || selectedQuestionText == null ||
+                                selectedQuestionText.equals("אין שאלות לסקר זה") ||
+                                selectedQuestionText.equals("אין שאלות זמינות")) {
 
-                            Survey selectedSurvey = findSurveyByTitle(selectedSurveyTitle);
-                            if (selectedSurvey != null) {
-                                for (Question q : selectedSurvey.getQuestions()) {
-                                    if (q.getQuestion().equals(selectedQuestionText)) {
-                                        graphPanel.updateGraphData(q);
-                                        graphPanel.repaint();
-                                        break;
-                                    }
+                            graphPanel.updateGraphData(new Question());
+                            graphPanel.repaint();
+
+                        } else {
+                            surveyCombo.setEnabled(true);
+                            surveyCombo.setToolTipText(null);
+                            for (Question q : selectedSurvey.getQuestions()) {
+                                if (q.getQuestion().equals(selectedQuestionText)) {
+                                    graphPanel.updateGraphData(q);
+                                    graphPanel.repaint();
+                                    break; // מצאנו את השאלה
                                 }
                             }
                         }
@@ -140,38 +141,45 @@ public class MainScreen extends Screen {
 
     private void updateQuestionCombo() {
         questionCombo.removeAllItems();
-        String selectedSurveyTitle = (String) surveyCombo.getSelectedItem();
 
-        if (selectedSurveyTitle != null && !selectedSurveyTitle.equals("אין סקרים פעילים")) {
-            Survey selectedSurvey = findSurveyByTitle(selectedSurveyTitle);
-            if (selectedSurvey != null) {
-                for (Question question : selectedSurvey.getQuestions()) {
-                    questionCombo.addItem(question.getQuestion());
-                }
+        Survey selectedSurvey = (Survey) surveyCombo.getSelectedItem();
+
+        if (selectedSurvey == null) {
+            questionCombo.setToolTipText("אין שאלות זמינות כרגע");
+            questionCombo.setEnabled(false);
+            displayQuestionStats();
+            return;
+        }else {
+            questionCombo.setEnabled(true);
+            questionCombo.setToolTipText(null);
+        }
+
+        if (!selectedSurvey.getQuestions().isEmpty()) {
+            for (Question question : selectedSurvey.getQuestions()) {
+                questionCombo.addItem(question.getQuestion());
             }
         } else {
-            questionCombo.addItem("אין שאלות זמינות");
+            questionCombo.addItem("אין שאלות לסקר זה");
         }
+
         displayQuestionStats();
     }
 
     private void displayQuestionStats() {
-        String selectedSurveyTitle = (String) surveyCombo.getSelectedItem();
+        Survey selectedSurvey = (Survey) surveyCombo.getSelectedItem();
         String selectedQuestionText = (String) questionCombo.getSelectedItem();
 
-        if (selectedSurveyTitle == null || selectedQuestionText == null ||
-                selectedSurveyTitle.equals("אין סקרים פעילים") ||
-                selectedQuestionText.equals("אין שאלות זמינות")) {
+        if (selectedSurvey == null || selectedQuestionText == null ||
+                selectedQuestionText.equals("בחר סקר") ||
+                selectedQuestionText.equals("אין שאלות לסקר זה")) {
+
             graphPanel.updateGraphData(new Question());
             return;
         }
-        Survey selectedSurvey = findSurveyByTitle(selectedSurveyTitle);
-        if (selectedSurvey == null) {
-            return;
-        }
+
+        // 3. אין צורך לחפש!
         for (Question q : selectedSurvey.getQuestions()) {
             if (q.getQuestion().equals(selectedQuestionText)) {
-                // העברת הנתונים הנכונים לפאנל הגרף
                 graphPanel.updateGraphData(q);
                 return;
             }

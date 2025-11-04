@@ -56,9 +56,9 @@ public class FinalSurvey extends Screen{
                     this.dispose();
                     JOptionPane.showMessageDialog(
                             this, // שימוש ב-this
-                            "הסקר יפורסם עכשיו " + delay.getText() + " .", // הודעת השגיאה
+                            "הסקר יפורסם עכשיו.", // הודעת השגיאה
                             "שליחה", // כותרת החלון
-                            JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.INFORMATION_MESSAGE);
                 }
             }else {
                 try {
